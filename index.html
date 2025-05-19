@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Stellar Age Calculator</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Arial', sans-serif;
+      background: url('background.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+      text-align: center;
+    }
+
+    .container {
+      padding-top: 100px;
+    }
+
+    .title {
+      font-size: 2.5em;
+      font-weight: bold;
+    }
+
+    .subtitle {
+      font-size: 1.2em;
+      margin-bottom: 40px;
+    }
+
+    .box {
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 30px;
+      border-radius: 12px;
+      width: 300px;
+      margin: 0 auto;
+    }
+
+    label {
+      text-align: left;
+      display: block;
+      margin-top: 15px;
+      margin-bottom: 5px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 1em;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 1em;
+      border: none;
+      border-radius: 8px;
+      background-color: #ffa500;
+      color: black;
+      cursor: pointer;
+    }
+
+    #result {
+      font-size: 1.2em;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="title">STELLAR AGE</div>
+    <div class="subtitle">Kalkulator Prediksi Umur Bintang dari Massa</div>
+
+    <div class="box">
+      <label for="mass">Massa bintang:</label>
+      <input type="number" id="mass" step="any" value="1">
+      <p><strong>massa Matahari</strong></p>
+
+      <button onclick="hitungUmur()">Hitung Umur Bintang</button>
+
+      <label for="result">Umur bintang:</label>
+      <div id="result">10.0 miliar tahun</div>
+    </div>
+  </div>
+
+  <script>
+    function hitungUmur() {
+      const mass = parseFloat(document.getElementById('mass').value);
+      if (mass <= 0 || isNaN(mass)) {
+        document.getElementById('result').innerText = "Masukkan massa yang valid.";
+        return;
+      }
+
+      const age = 10 * Math.pow(mass, -2.5); // dalam miliar tahun
+      document.getElementById('result').innerText = age.toFixed(2) + " miliar tahun";
+    }
+  </script>
+</body>
+</html>
