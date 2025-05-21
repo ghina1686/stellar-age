@@ -2,82 +2,115 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Prediksi Usia Bintang</title>
+  <title>Kalkulator Usia Bintang</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #0d0d2b;
+      background-image: url("background.jpg"); /* Ganti dengan nama file kamu */
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
       color: white;
       text-align: center;
       padding: 2em;
     }
+
     input, select {
       padding: 0.5em;
       font-size: 1em;
+      margin: 0.5em;
     }
+
     .result {
       margin-top: 1.5em;
       font-size: 1.2em;
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: 1em;
+      border-radius: 10px;
+      display: inline-block;
     }
   </style>
 </head>
 <body>
 
-  <h1>Prediksi Usia Bintang dari Tipe Spektral dan Massa</h1>
+  <h1>Kalkulator Usia Bintang</h1>
 
-  <label for="spectral">Tipe Spektral:</label>
-  <select id="spectral">
-    <option value="O">O</option>
-    <option value="B">B</option>
-    <option value="A">A</option>
-    <option value="F">F</option>
-    <option value="G" selected>G</option>
-    <option value="K">K</option>
-    <option value="M">M</option>
-  </select>
+  <label>Massa Bintang (M☉):</label><br>
+  <input type="number" id="mass" step="0.01" placeholder="contoh: 1.0"><br><br>
 
-  <br><br>
+  <label>Pilih Cara Input Ketidakpastian:</label><br>
+  <select id="mode" onchange="toggleInput()">
+    <option value="spectral">Tipe Spektral</option>
+    <option value="manual">Galat Massa Manual</option>
+  </select><br><br>
 
-  <label for="mass">Massa Bintang (M☉):</label>
-  <input type="number" id="mass" step="0.01" value="1.0">
+  <div id="spectralInput">
+    <label for="spectral">Tipe Spektral:</label>
+    <select id="spectral">
+      <option value="O">O</option>
+      <option value="B">B</option>
+      <option value="A">A</option>
+      <option value="F">F</option>
+      <option value="G" selected>G</option>
+      <option value="K">K</option>
+      <option value="M">M</option>
+    </select>
+  </div>
 
-  <br><br>
+  <div id="manualInput" style="display:none;">
+    <label for="deltaM">Galat Massa (ΔM):</label>
+    <input type="number" id="deltaM" step="0.01" placeholder="contoh: 0.1">
+  </div><br>
 
   <button onclick="hitungUsia()">Hitung Usia</button>
 
   <div class="result" id="output"></div>
 
   <script>
-    const spectralData = {
-      O: { mean: 30, range: [16, 60], deltaM: 22 },
-      B: { mean: 9,  range: [2.1, 16], deltaM: 7 },
-      A: { mean: 1.75, range: [1.4, 2.1], deltaM: 0.35 },
-      F: { mean: 1.22, range: [1.04, 1.4], deltaM: 0.18 },
-      G: { mean: 0.92, range: [0.8, 1.04], deltaM: 0.12 },
-      K: { mean: 0.625, range: [0.45, 0.8], deltaM: 0.18 },
-      M: { mean: 0.265, range: [0.08, 0.45], deltaM: 0.19 }
+    const spectralGalat = {
+      O: 22,
+      B: 7,
+      A: 0.35,
+      F: 0.18,
+      G: 0.12,
+      K: 0.18,
+      M: 0.19
     };
 
+    function toggleInput() {
+      const mode = document.getElementById("mode").value;
+      document.getElementById("spectralInput").style.display = mode === "spectral" ? "block" : "none";
+      document.getElementById("manualInput").style.display = mode === "manual" ? "block" : "none";
+    }
+
     function hitungUsia() {
-      const type = document.getElementById("spectral").value;
       const M = parseFloat(document.getElementById("mass").value);
-      const data = spectralData[type];
+      const mode = document.getElementById("mode").value;
+      let dM = 0;
 
-      const [minM, maxM] = data.range;
-
-      if (M < minM || M > maxM) {
-        document.getElementById("output").innerHTML =
-          `❌ Massa ${M} M☉ tidak cocok untuk tipe spektral ${type} (rentang: ${minM}–${maxM} M☉)`;
+      if (isNaN(M) || M <= 0) {
+        document.getElementById("output").innerHTML = "❌ Mohon masukkan massa yang valid.";
         return;
       }
 
-      const dM = data.deltaM;
+      if (mode === "spectral") {
+        const type = document.getElementById("spectral").value;
+        dM = spectralGalat[type];
+      } else {
+        dM = parseFloat(document.getElementById("deltaM").value);
+        if (isNaN(dM) || dM <= 0) {
+          document.getElementById("output").innerHTML = "❌ Mohon masukkan galat massa yang valid.";
+          return;
+        }
+      }
+
       const age = 10 * Math.pow(M, -2.5);
       const deltaAge = 25 * Math.pow(M, -3.5) * dM;
 
       document.getElementById("output").innerHTML = `
-        ✅ Prediksi usia bintang: <strong>${age.toFixed(2)}</strong> ± <strong>${deltaAge.toFixed(2)}</strong> miliar tahun<br>
-        <em>(dengan galat dari ketidakpastian massa tipe spektral ${type})</em>
+        ✅ Usia Bintang: <strong>${age.toFixed(2)}</strong> ± <strong>${deltaAge.toFixed(2)}</strong> miliar tahun<br>
+        (Massa: ${M} M☉, Galat massa: ${dM} M☉)
       `;
     }
   </script>
