@@ -2,101 +2,85 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Stellar Age Calculator</title>
+  <title>Prediksi Usia Bintang</title>
   <style>
     body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Arial', sans-serif;
-      background: url('background.jpg') no-repeat center center fixed;
-      background-size: cover;
+      font-family: Arial, sans-serif;
+      background-color: #0d0d2b;
       color: white;
       text-align: center;
+      padding: 2em;
     }
-
-    .container {
-      padding-top: 100px;
-    }
-
-    .title {
-      font-size: 2.5em;
-      font-weight: bold;
-    }
-
-    .subtitle {
-      font-size: 1.2em;
-      margin-bottom: 40px;
-    }
-
-    .box {
-      background-color: rgba(0, 0, 0, 0.7);
-      padding: 30px;
-      border-radius: 12px;
-      width: 300px;
-      margin: 0 auto;
-    }
-
-    label {
-      text-align: left;
-      display: block;
-      margin-top: 15px;
-      margin-bottom: 5px;
-    }
-
-    input {
-      width: 100%;
-      padding: 10px;
-      border-radius: 8px;
-      border: none;
+    input, select {
+      padding: 0.5em;
       font-size: 1em;
     }
-
-    button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 1em;
-      border: none;
-      border-radius: 8px;
-      background-color: #ffa500;
-      color: black;
-      cursor: pointer;
-    }
-
-    #result {
+    .result {
+      margin-top: 1.5em;
       font-size: 1.2em;
-      font-weight: bold;
-      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="title">STELLAR AGE</div>
-    <div class="subtitle">Kalkulator Prediksi Umur Bintang dari Massa</div>
 
-    <div class="box">
-      <label for="mass">Massa bintang:</label>
-      <input type="number" id="mass" step="any" value="1">
-      <p><strong>massa Matahari</strong></p>
+  <h1>Prediksi Usia Bintang dari Tipe Spektral dan Massa</h1>
 
-      <button onclick="hitungUmur()">Hitung Umur Bintang</button>
+  <label for="spectral">Tipe Spektral:</label>
+  <select id="spectral">
+    <option value="O">O</option>
+    <option value="B">B</option>
+    <option value="A">A</option>
+    <option value="F">F</option>
+    <option value="G" selected>G</option>
+    <option value="K">K</option>
+    <option value="M">M</option>
+  </select>
 
-      <label for="result">Umur bintang:</label>
-      <div id="result">10.0 miliar tahun</div>
-    </div>
-  </div>
+  <br><br>
+
+  <label for="mass">Massa Bintang (M☉):</label>
+  <input type="number" id="mass" step="0.01" value="1.0">
+
+  <br><br>
+
+  <button onclick="hitungUsia()">Hitung Usia</button>
+
+  <div class="result" id="output"></div>
 
   <script>
-    function hitungUmur() {
-      const mass = parseFloat(document.getElementById('mass').value);
-      if (mass <= 0 || isNaN(mass)) {
-        document.getElementById('result').innerText = "Masukkan massa yang valid.";
+    const spectralData = {
+      O: { mean: 30, range: [16, 60], deltaM: 22 },
+      B: { mean: 9,  range: [2.1, 16], deltaM: 7 },
+      A: { mean: 1.75, range: [1.4, 2.1], deltaM: 0.35 },
+      F: { mean: 1.22, range: [1.04, 1.4], deltaM: 0.18 },
+      G: { mean: 0.92, range: [0.8, 1.04], deltaM: 0.12 },
+      K: { mean: 0.625, range: [0.45, 0.8], deltaM: 0.18 },
+      M: { mean: 0.265, range: [0.08, 0.45], deltaM: 0.19 }
+    };
+
+    function hitungUsia() {
+      const type = document.getElementById("spectral").value;
+      const M = parseFloat(document.getElementById("mass").value);
+      const data = spectralData[type];
+
+      const [minM, maxM] = data.range;
+
+      if (M < minM || M > maxM) {
+        document.getElementById("output").innerHTML =
+          `❌ Massa ${M} M☉ tidak cocok untuk tipe spektral ${type} (rentang: ${minM}–${maxM} M☉)`;
         return;
       }
 
-      const age = 10 * Math.pow(mass, -2.5); // dalam miliar tahun
-      document.getElementById('result').innerText = age.toFixed(2) + " miliar tahun";
+      const dM = data.deltaM;
+      const age = 10 * Math.pow(M, -2.5);
+      const deltaAge = 25 * Math.pow(M, -3.5) * dM;
+
+      document.getElementById("output").innerHTML = `
+        ✅ Prediksi usia bintang: <strong>${age.toFixed(2)}</strong> ± <strong>${deltaAge.toFixed(2)}</strong> miliar tahun<br>
+        <em>(dengan galat dari ketidakpastian massa tipe spektral ${type})</em>
+      `;
     }
   </script>
+
 </body>
 </html>
